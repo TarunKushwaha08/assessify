@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Results - Assessify</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #666;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pass {
+            background: #e7f9ed;
+            color: #27ae60;
+        }
+
+        .status-fail {
+            background: #ffebee;
+            color: #e74c3c;
+        }
+
+        .score {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .score.pass {
+            color: #27ae60;
+        }
+
+        .score.fail {
+            color: #e74c3c;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .btn-action {
+            padding: 6px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            background: #667eea;
+            color: white;
+            transition: all 0.3s;
+        }
+
+        .btn-action:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand" onclick="goBack()">📝 Assessify</div>
+        <button class="back-btn" onclick="goBack()">← Back to Dashboard</button>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>📊 Test Results</h1>
+            <p>View all student test results and performance</p>
+
+            <div class="filters">
+                <div class="filter-group">
+                    <label>Filter by Test</label>
+                    <select id="filterTest" onchange="loadResults()">
+                        <option value="">All Tests</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Filter by Result</label>
+                    <select id="filterResult" onchange="loadResults()">
+                        <option value="">All Results</option>
+                        <option value="pass">Pass</option>
+                        <option value="fail">Fail</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Search Student</label>
+                    <input type="text" id="searchStudent" placeholder="Search by name or roll number..." oninput="loadResults()">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Roll Number</th>
+                            <th>Test Name</th>
+                            <th>Date</th>
+                            <th>Score</th>
+                            <th>Percentage</th>
+                            <th>Result</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBody">
+                        <tr>
+                            <td colspan="8" class="no-data">Loading results...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        const userType = localStorage.getItem('userType');
+
+        if (!token || userType !== 'teacher') {
+            alert('Access denied. Teachers only.');
+            window.location.href = '/login.html';
+        }
+
+        async function loadResults() {
+            // Placeholder - will be implemented with actual API
+            const tbody = document.getElementById('resultsTableBody');
+            tbody.innerHTML = '<tr><td colspan="8" class="no-data">No results available yet. Students need to take tests first.</td></tr>';
+        }
+
+        function goBack() {
+            window.location.href = '/admin_dashboard.html';
+        }
+
+        loadResults();
+    </script>
+</body>
+</html>

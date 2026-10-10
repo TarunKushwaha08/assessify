@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Assessify</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .user-role {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .welcome-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .welcome-section h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .welcome-section p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .stat-icon.tests {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .stat-icon.completed {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .stat-icon.average {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .stat-content h3 {
+            font-size: 32px;
+            color: #333;
+            font-weight: 700;
+        }
+
+        .stat-content p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .test-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .test-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .test-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .test-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .test-subject {
+            color: #667eea;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .test-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-available {
+            background: #e7f9ed;
+            color: #27ae60;
+        }
+
+        .badge-ongoing {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-completed {
+            background: #e3f2fd;
+            color: #2196f3;
+        }
+
+        .test-info {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .test-info-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .test-description {
+            color: #888;
+            font-size: 13px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .test-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #666;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .score {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .score.pass {
+            color: #27ae60;
+        }
+
+        .score.fail {
+            color: #e74c3c;
+        }
+
+        .loading, .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">📝 Assessify</div>
+        <div class="navbar-user">
+            <div class="user-info">
+                <div class="user-name" id="userName">Loading...</div>
+                <div class="user-role">Student</div>
+            </div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="welcome-section">
+            <h1>Welcome, <span id="welcomeName">Student</span>! 📚</h1>
+            <p>Ready to take your assessments? Check out the available tests below.</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon tests">📝</div>
+                <div class="stat-content">
+                    <h3 id="totalTests">0</h3>
+                    <p>Available Tests</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon completed">✅</div>
+                <div class="stat-content">
+                    <h3 id="completedTests">0</h3>
+                    <p>Tests Completed</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon average">📊</div>
+                <div class="stat-content">
+                    <h3 id="averageScore">0%</h3>
+                    <p>Average Score</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Available Tests</h2>
+            <div class="test-grid" id="availableTests">
+                <div class="no-data">No tests available at the moment</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Recent Results</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Test Name</th>
+                            <th>Date</th>
+                            <th>Score</th>
+                            <th>Percentage</th>
+                            <th>Result</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBody">
+                        <tr>
+                            <td colspan="6" class="no-data">Loading results...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="viewAllResults()">View All Results</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check authentication
+        const token = localStorage.getItem('token');
+        const userType = localStorage.getItem('userType');
+
+        if (!token || userType !== 'student') {
+            alert('Please login as a student to access this page');
+            window.location.href = '/login.html';
+        }
+
+        // Load user info
+        async function loadUserInfo() {
+            try {
+                const response = await fetch('/api/auth/verify', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('userName').textContent = data.user.name;
+                    document.getElementById('welcomeName').textContent = data.user.name;
+                } else {
+                    logout();
+                }
+            } catch (error) {
+                console.error('Error loading user info:', error);
+            }
+        }
+
+        // Load stats
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/student/results', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const results = data.results;
+                    
+                    document.getElementById('completedTests').textContent = results.length;
+                    
+                    if (results.length > 0) {
+                        const avgScore = (results.reduce((sum, r) => sum + parseFloat(r.percentage), 0) / results.length).toFixed(1);
+                        document.getElementById('averageScore').textContent = avgScore + '%';
+                        
+                        // Show recent 3 results in table
+                        displayRecentResults(results.slice(0, 3));
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+
+            // Placeholder - will be implemented with actual API
+            document.getElementById('totalTests').textContent = '0';
+        }
+
+        function displayRecentResults(results) {
+            const tbody = document.getElementById('resultsTableBody');
+            
+            if (results.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="no-data">No results yet. Take a test to see your results!</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = results.map(result => {
+                const statusClass = result.result === 'pass' ? 'pass' : 'fail';
+                const date = new Date(result.completed_at).toLocaleDateString();
+                
+                return `
+                    <tr>
+                        <td>${result.test_name}</td>
+                        <td>${date}</td>
+                        <td class="score ${statusClass}">${result.score}/${result.total_marks}</td>
+                        <td>${result.percentage}%</td>
+                        <td><span class="status-badge ${result.result === 'pass' ? 'status-completed' : 'status-inactive'}">${result.result}</span></td>
+                        <td><button class="btn-action btn-view" onclick="viewResult(${result.id})">View</button></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function viewAllResults() {
+            window.location.href = '/view_results.html';
+        }
+
+        function viewResult(resultId) {
+            window.location.href = `/view_result_detail.html?id=${resultId}`;
+        }
+
+        // Load available tests
+        async function loadTests() {
+            try {
+                const response = await fetch('/api/student/tests', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const container = document.getElementById('availableTests');
+                    
+                    if (data.tests && data.tests.length > 0) {
+                        container.innerHTML = data.tests.map(test => `
+                            <div class="test-card">
+                                <div class="test-header">
+                                    <div>
+                                        <div class="test-title">${test.test_name}</div>
+                                        <div class="test-subject">${test.subject}</div>
+                                    </div>
+                                    <span class="test-badge badge-available">Available</span>
+                                </div>
+                                <div class="test-info">
+                                    <div class="test-info-item">⏱️ ${test.duration} min</div>
+                                    <div class="test-info-item">📝 ${test.question_count} questions</div>
+                                    <div class="test-info-item">💯 ${test.total_marks} marks</div>
+                                </div>
+                                <div class="test-description">${test.description || 'No description provided'}</div>
+                                <div class="test-actions">
+                                    <button class="btn btn-primary" onclick="startTest(${test.id})">Start Test</button>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        container.innerHTML = '<div class="no-data">No tests available at the moment. Check back later!</div>';
+                    }
+                } else {
+                    container.innerHTML = '<div class="no-data">Error loading tests</div>';
+                }
+            } catch (error) {
+                console.error('Error loading tests:', error);
+                document.getElementById('availableTests').innerHTML = '<div class="no-data">Error loading tests</div>';
+            }
+        }
+
+        // Start test
+        function startTest(testId) {
+            if (confirm('Ready to start the test? Once started, you cannot pause or exit.')) {
+                window.location.href = `/take_test.html?id=${testId}`;
+            }
+        }
+
+        // View result
+        function viewResult(resultId) {
+            window.location.href = `/view_result.html?id=${resultId}`;
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userType');
+            window.location.href = '/login.html';
+        }
+
+        // Initialize
+        loadUserInfo();
+        loadStats();
+        loadTests();
+    </script>
+</body>
+</html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Student - Assessify</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 40px;
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .card-header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .card-header p {
+            color: #666;
+            font-size: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group label .required {
+            color: #e74c3c;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group .help-text {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+
+        .alert-success {
+            background: #efe;
+            color: #3c3;
+            border: 1px solid #cfc;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-submit:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .password-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 25px;
+        }
+
+        .password-info h4 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .password-info ul {
+            margin-left: 20px;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .password-info li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand" onclick="goBack()">📝 Assessify</div>
+        <button class="back-btn" onclick="goBack()">← Back to Dashboard</button>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h1>👤 Create New Student</h1>
+                <p>Add a new student to the system</p>
+            </div>
+
+            <div id="alert" class="alert"></div>
+
+            <div class="password-info">
+                <h4>📋 Important Information:</h4>
+                <ul>
+                    <li>Roll number must be exactly <strong>13 digits</strong></li>
+                    <li>Password must be exactly <strong>9 characters</strong></li>
+                    <li>Student will use these credentials to login</li>
+                </ul>
+            </div>
+
+            <form id="createStudentForm">
+                <div class="form-group">
+                    <label>Roll Number <span class="required">*</span></label>
+                    <input 
+                        type="text" 
+                        id="rollNumber" 
+                        name="rollNumber" 
+                        placeholder="Enter 13-digit roll number"
+                        required
+                        minlength="13"
+                        maxlength="13"
+                        pattern="[0-9]{13}"
+                    >
+                    <div class="help-text">Must be exactly 13 digits (e.g., 2024000000001)</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Full Name <span class="required">*</span></label>
+                    <input 
+                        type="text" 
+                        id="name" 
+                        name="name" 
+                        placeholder="Enter student's full name"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Email (Optional)</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        placeholder="Enter email address"
+                    >
+                    <div class="help-text">Email is optional but recommended for password recovery</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Password <span class="required">*</span></label>
+                    <input 
+                        type="text" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Enter 9-character password"
+                        required
+                        minlength="9"
+                        maxlength="9"
+                    >
+                    <div class="help-text">Must be exactly 9 characters (e.g., student12)</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Confirm Password <span class="required">*</span></label>
+                    <input 
+                        type="text" 
+                        id="confirmPassword" 
+                        name="confirmPassword" 
+                        placeholder="Re-enter password"
+                        required
+                        minlength="9"
+                        maxlength="9"
+                    >
+                </div>
+
+                <button type="submit" class="btn-submit" id="submitBtn">Create Student Account</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Check authentication
+        const token = localStorage.getItem('token');
+        const userType = localStorage.getItem('userType');
+
+        if (!token || userType !== 'teacher') {
+            alert('Access denied. Teachers only.');
+            window.location.href = '/login.html';
+        }
+
+        const form = document.getElementById('createStudentForm');
+        const alertBox = document.getElementById('alert');
+        const submitBtn = document.getElementById('submitBtn');
+
+        function showAlert(message, type) {
+            alertBox.textContent = message;
+            alertBox.className = `alert alert-${type} show`;
+            setTimeout(() => {
+                alertBox.classList.remove('show');
+            }, 5000);
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const rollNumber = document.getElementById('rollNumber').value;
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // Validation
+            if (rollNumber.length !== 13) {
+                showAlert('Roll number must be exactly 13 digits', 'error');
+                return;
+            }
+
+            if (password.length !== 9) {
+                showAlert('Password must be exactly 9 characters', 'error');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showAlert('Passwords do not match', 'error');
+                return;
+            }
+
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating...';
+
+            try {
+                const response = await fetch('/api/admin/create-student', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        rollNumber,
+                        name,
+                        email,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showAlert('Student created successfully!', 'success');
+                    form.reset();
+                    
+                    // Show credentials
+                    setTimeout(() => {
+                        alert(`Student Account Created!\n\nRoll Number: ${rollNumber}\nPassword: ${password}\n\nPlease share these credentials with the student.`);
+                    }, 500);
+                } else {
+                    showAlert(data.message || 'Failed to create student', 'error');
+                }
+            } catch (error) {
+                showAlert('Network error. Please try again.', 'error');
+                console.error('Error:', error);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Create Student Account';
+            }
+        });
+
+        function goBack() {
+            window.location.href = '/admin_dashboard.html';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take Test - Assessify</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: white;
+            overflow: hidden;
+        }
+
+        .preparation-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px;
+            text-align: center;
+        }
+
+        .prep-content {
+            max-width: 600px;
+        }
+
+        .prep-content h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .prep-content p {
+            font-size: 18px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .countdown-circle {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 40px;
+            position: relative;
+        }
+
+        .countdown-number {
+            font-size: 80px;
+            font-weight: 700;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-circle {
+            transition: stroke-dashoffset 1s linear;
+        }
+
+        .instructions {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .instructions h3 {
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .instructions ul {
+            margin-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .test-container {
+            display: none;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .test-container.active {
+            display: block;
+        }
+
+        .test-header {
+            background: #16213e;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .test-info h2 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .test-meta {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .timer {
+            background: #e74c3c;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 24px;
+            font-weight: 700;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .timer.warning {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .warning-banner {
+            background: #e74c3c;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .warning-banner.show {
+            display: block;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .question-nav {
+            background: #16213e;
+            border-radius: 10px;
+            padding: 20px;
+            height: fit-content;
+        }
+
+        .question-nav h3 {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .nav-btn {
+            aspect-ratio: 1;
+            border: 2px solid #2d4059;
+            background: #1a1a2e;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: #2d4059;
+        }
+
+        .nav-btn.answered {
+            background: #27ae60;
+            border-color: #27ae60;
+        }
+
+        .nav-btn.current {
+            background: #667eea;
+            border-color: #667eea;
+        }
+
+        .question-area {
+            background: #16213e;
+            border-radius: 10px;
+            padding: 30px;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #2d4059;
+        }
+
+        .question-number {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .question-marks {
+            background: #667eea;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .question-text {
+            font-size: 20px;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .options {
+            display: grid;
+            gap: 15px;
+        }
+
+        .option {
+            background: #1a1a2e;
+            border: 2px solid #2d4059;
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #2d4059;
+        }
+
+        .option.selected {
+            border-color: #27ae60;
+            background: rgba(39, 174, 96, 0.1);
+        }
+
+        .option-label {
+            background: #667eea;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .option.selected .option-label {
+            background: #27ae60;
+        }
+
+        .option-text {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .question-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-nav {
+            background: #2d4059;
+            color: white;
+        }
+
+        .btn-nav:hover {
+            background: #3d5069;
+        }
+
+        .btn-nav:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-submit {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-submit:hover {
+            background: #c0392b;
+        }
+
+        .warning-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .warning-modal.show {
+            display: flex;
+        }
+
+        .warning-content {
+            background: #16213e;
+            padding: 40px;
+            border-radius: 15px;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .warning-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .warning-content h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: #e74c3c;
+        }
+
+        .warning-content p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .warning-count {
+            background: #e74c3c;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 20px;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .btn-understand {
+            background: #667eea;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-understand:hover {
+            background: #5568d3;
+        }
+
+        .violation-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1a1a2e;
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .violation-screen.show {
+            display: flex;
+        }
+
+        .violation-content {
+            text-align: center;
+            max-width: 600px;
+            padding: 40px;
+        }
+
+        .violation-icon {
+            font-size: 120px;
+            margin-bottom: 30px;
+            animation: shake 0.5s infinite;
+        }
+
+        .violation-content h1 {
+            font-size: 48px;
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+
+        .violation-content p {
+            font-size: 20px;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .violation-details {
+            background: rgba(231, 76, 60, 0.1);
+            border: 2px solid #e74c3c;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .violation-details h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #e74c3c;
+        }
+
+        .btn-exit {
+            background: #e74c3c;
+            color: white;
+            padding: 15px 50px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .btn-exit:hover {
+            background: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <!-- Preparation Screen -->
+    <div class="preparation-screen" id="prepScreen">
+        <div class="prep-content">
+            <h1>🎯 Ready to Start Test?</h1>
+            <p id="testTitle">Loading test information...</p>
+            
+            <div class="instructions">
+                <h3>⚠️ Important Rules:</h3>
+                <ul>
+                    <li>Click "Start Test" to enter fullscreen mode</li>
+                    <li>Do NOT switch tabs or minimize browser</li>
+                    <li>Do NOT exit fullscreen mode</li>
+                    <li>Do NOT open other applications</li>
+                    <li>You will get 2 warnings for violations</li>
+                    <li>After 2 warnings, test will auto-submit</li>
+                </ul>
+            </div>
+
+            <button class="btn-understand" style="margin-top: 30px; padding: 20px 60px; font-size: 20px;" onclick="requestFullscreenAndStart()">
+                🚀 Start Test
+            </button>
+        </div>
+    </div>
+
+    <!-- Countdown Screen (hidden initially) -->
+    <div class="preparation-screen" id="countdownScreen" style="display: none;">
+        <div class="prep-content">
+            <h1>🎯 Get Ready!</h1>
+            <p>Close any extension popups now. The test will begin shortly.</p>
+            
+            <div class="countdown-circle">
+                <svg width="200" height="200">
+                    <circle class="progress-ring" cx="100" cy="100" r="90" stroke="#ffffff33" stroke-width="8" fill="none" />
+                    <circle class="progress-ring progress-ring-circle" cx="100" cy="100" r="90" 
+                            stroke="#ffffff" stroke-width="8" fill="none" 
+                            stroke-dasharray="565.48" stroke-dashoffset="0" id="progressCircle" />
+                </svg>
+                <div class="countdown-number" id="countdownNumber">15</div>
+            </div>
+
+            <div style="width: 100%; height: 20px; background: rgba(255,255,255,0.2); border-radius: 10px; overflow: hidden;">
+                <div id="progressBar" style="width: 100%; height: 100%; background: white; transition: width 1s linear;"></div>
+            </div>
+
+            <div class="instructions">
+                <h3>⚠️ Test starts in 15 seconds</h3>
+                <p style="margin-top: 15px;">You cannot cancel once the countdown begins.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Warning Modal -->
+    <div class="warning-modal" id="warningModal">
+        <div class="warning-content">
+            <div class="warning-icon">⚠️</div>
+            <h2 id="warningTitle">Warning!</h2>
+            <p id="warningMessage"></p>
+            <div class="warning-count" id="warningCount"></div>
+            <button class="btn-understand" onclick="closeWarning()">I Understand</button>
+        </div>
+    </div>
+
+    <!-- Test Container -->
+    <div class="test-container" id="testContainer">
+        <div class="warning-banner" id="warningBanner"></div>
+
+        <div class="test-header">
+            <div class="test-info">
+                <h2 id="testName">Loading...</h2>
+                <div class="test-meta">
+                    <span id="testSubject"></span> • 
+                    <span id="testQuestionCount"></span> Questions • 
+                    <span id="testMarks"></span> Marks
+                </div>
+            </div>
+            <div class="timer" id="timer">00:00</div>
+        </div>
+
+        <div class="main-content">
+            <div class="question-nav">
+                <h3>Questions</h3>
+                <div class="nav-grid" id="questionNav"></div>
+            </div>
+
+            <div class="question-area">
+                <div class="question-header">
+                    <div class="question-number" id="questionNumber">Question 1</div>
+                    <div class="question-marks" id="questionMarks">1 Mark</div>
+                </div>
+
+                <div class="question-text" id="questionText">Loading question...</div>
+
+                <div class="options" id="optionsContainer"></div>
+
+                <div class="question-controls">
+                    <button class="btn btn-nav" id="prevBtn" onclick="previousQuestion()">← Previous</button>
+                    <button class="btn btn-submit" onclick="submitTest()">Submit Test</button>
+                    <button class="btn btn-nav" id="nextBtn" onclick="nextQuestion()">Next →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        const userType = localStorage.getItem('userType');
+
+        if (!token || userType !== 'student') {
+            alert('Access denied. Students only.');
+            window.location.href = '/login.html';
+        }
+
+        // Get test ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const testId = urlParams.get('id');
+
+        if (!testId) {
+            alert('No test selected');
+            window.location.href = '/student_dashboard.html';
+        }
+
+        let testData = null;
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let answers = {};
+        let warningCount = 0;
+        let testStarted = false;
+        let testDuration = 0;
+        let timeRemaining = 0;
+        let timerInterval = null;
+        let isShowingWarning = false;
+
+        // Disable right-click
+        document.addEventListener('contextmenu', e => e.preventDefault());
+
+        // Disable keyboard shortcuts
+        document.addEventListener('keydown', e => {
+            if (e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'x' || e.key === 'a' || e.key === 'u' || e.key === 's')) {
+                e.preventDefault();
+            }
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                e.preventDefault();
+            }
+        });
+
+        // Request fullscreen and start countdown
+        async function requestFullscreenAndStart() {
+            try {
+                await document.documentElement.requestFullscreen();
+                // Hide prep screen, show countdown screen
+                document.getElementById('prepScreen').style.display = 'none';
+                document.getElementById('countdownScreen').style.display = 'flex';
+                startPreparation();
+            } catch (err) {
+                alert('Please allow fullscreen mode to take the test. Click "Allow" when prompted.');
+                console.error('Fullscreen error:', err);
+            }
+        }
+
+        // Start preparation countdown
+        function startPreparation() {
+            let countdown = 15;
+            const circle = document.getElementById('progressCircle');
+            const circumference = 2 * Math.PI * 90;
+            
+            const interval = setInterval(() => {
+                countdown--;
+                document.getElementById('countdownNumber').textContent = countdown;
+                
+                const progress = countdown / 15;
+                const offset = circumference * (1 - progress);
+                circle.style.strokeDashoffset = offset;
+                document.getElementById('progressBar').style.width = (progress * 100) + '%';
+
+                if (countdown <= 0) {
+                    clearInterval(interval);
+                    startTest();
+                }
+            }, 1000);
+        }
+
+        // Start actual test
+        function startTest() {
+            document.getElementById('countdownScreen').style.display = 'none';
+            document.getElementById('testContainer').classList.add('active');
+            testStarted = true;
+
+            // Start monitoring
+            startMonitoring();
+            startTimer();
+            renderQuestionNav();
+            displayQuestion(0);
+        }
+
+        // Start anti-cheat monitoring
+        function startMonitoring() {
+            // Monitor visibility change (tab switching)
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+
+            // Monitor fullscreen exit
+            document.addEventListener('fullscreenchange', handleFullscreenChange);
+        }
+
+        function handleVisibilityChange() {
+            if (document.hidden && testStarted && !isShowingWarning) {
+                recordViolation('Tab Switching Detected!');
+            }
+        }
+
+        function handleFullscreenChange() {
+            if (!document.fullscreenElement && testStarted && !isShowingWarning) {
+                recordViolation('Fullscreen Exit Detected!');
+                document.documentElement.requestFullscreen();
+            }
+        }
+
+        function recordViolation(reason) {
+            warningCount++;
+            isShowingWarning = true;
+
+            if (warningCount >= 3) {
+                // Show violation screen and auto-submit
+                showViolationScreen();
+                autoSubmitTest('Too many violations - Test abandoned');
+                return;
+            }
+
+            showWarning(reason, warningCount);
+        }
+
+        function showViolationScreen() {
+            // Stop all monitoring
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            document.removeEventListener('fullscreenchange', handleFullscreenChange);
+            clearInterval(timerInterval);
+
+            // Exit fullscreen if in fullscreen
+            if (document.fullscreenElement) {
+                document.exitFullscreen().catch(err => console.log('Fullscreen exit error:', err));
+            }
+
+            // Hide test, show violation screen
+            document.getElementById('testContainer').style.display = 'none';
+            document.getElementById('warningModal').classList.remove('show');
+            document.getElementById('violationScreen').classList.add('show');
+            document.getElementById('totalViolations').textContent = warningCount;
+
+            testStarted = false; // Stop further monitoring
+        }
+
+        function exitToSafeDashboard() {
+            window.location.href = '/student_dashboard.html';
+        }
+
+        function showWarning(reason, count) {
+            const modal = document.getElementById('warningModal');
+            document.getElementById('warningTitle').textContent = count === 1 ? 'First Warning!' : 'Final Warning!';
+            document.getElementById('warningMessage').textContent = reason + ' Do not leave the test window again!';
+            document.getElementById('warningCount').textContent = `Warning ${count}/2`;
+            modal.classList.add('show');
+
+            const banner = document.getElementById('warningBanner');
+            banner.textContent = `⚠️ Warnings: ${count}/2 - Stay focused on the test!`;
+            banner.classList.add('show');
+        }
+
+        function closeWarning() {
+            document.getElementById('warningModal').classList.remove('show');
+            isShowingWarning = false;
+        }
+
+        // Load test data on page load
+        async function loadTestData() {
+            try {
+                const response = await fetch(`/api/student/tests/${testId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    testData = data.test;
+                    questions = data.test.questions;
+                    testDuration = testData.duration * 60;
+                    timeRemaining = testDuration;
+
+                    // Show test info on prep screen
+                    document.getElementById('testTitle').textContent = 
+                        `${testData.test_name} - ${testData.subject} (${questions.length} Questions, ${testData.duration} minutes)`;
+                } else {
+                    alert('Failed to load test');
+                    window.location.href = '/student_dashboard.html';
+                }
+            } catch (error) {
+                console.error('Error loading test:', error);
+                alert('Error loading test');
+                window.location.href = '/student_dashboard.html';
+            }
+        }
+
+        function displayTestInfo() {
+            document.getElementById('testName').textContent = testData.test_name;
+            document.getElementById('testSubject').textContent = testData.subject;
+            document.getElementById('testQuestionCount').textContent = questions.length;
+            document.getElementById('testMarks').textContent = testData.total_marks;
+        }
+
+        function renderQuestionNav() {
+            const nav = document.getElementById('questionNav');
+            nav.innerHTML = questions.map((q, i) => 
+                `<button class="nav-btn ${i === 0 ? 'current' : ''}" onclick="goToQuestion(${i})">${i + 1}</button>`
+            ).join('');
+        }
+
+        function displayQuestion(index) {
+            currentQuestionIndex = index;
+            const q = questions[index];
+
+            // Display test info when first question loads
+            if (index === 0 && testData) {
+                displayTestInfo();
+            }
+
+            document.getElementById('questionNumber').textContent = `Question ${index + 1} of ${questions.length}`;
+            document.getElementById('questionMarks').textContent = `${q.marks} Mark${q.marks > 1 ? 's' : ''}`;
+            document.getElementById('questionText').textContent = q.question_text;
+
+            const options = document.getElementById('optionsContainer');
+            options.innerHTML = ['A', 'B', 'C', 'D'].map(opt => `
+                <div class="option ${answers[q.id] === opt ? 'selected' : ''}" onclick="selectOption('${opt}', ${q.id})">
+                    <div class="option-label">${opt}</div>
+                    <div class="option-text">${q['option_' + opt.toLowerCase()]}</div>
+                </div>
+            `).join('');
+
+            updateNavButtons();
+        }
+
+        function selectOption(option, questionId) {
+            answers[questionId] = option;
+            displayQuestion(currentQuestionIndex);
+            updateQuestionNav();
+        }
+
+        function updateQuestionNav() {
+            const nav = document.getElementById('questionNav');
+            nav.innerHTML = questions.map((q, i) => 
+                `<button class="nav-btn ${i === currentQuestionIndex ? 'current' : ''} ${answers[q.id] ? 'answered' : ''}" 
+                        onclick="goToQuestion(${i})">${i + 1}</button>`
+            ).join('');
+        }
+
+        function updateNavButtons() {
+            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+            document.getElementById('nextBtn').disabled = currentQuestionIndex === questions.length - 1;
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                displayQuestion(currentQuestionIndex - 1);
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                displayQuestion(currentQuestionIndex + 1);
+            }
+        }
+
+        function goToQuestion(index) {
+            displayQuestion(index);
+        }
+
+        function startTimer() {
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+
+                if (timeRemaining <= 300) {
+                    document.getElementById('timer').classList.add('warning');
+                }
+
+                if (timeRemaining <= 0) {
+                    autoSubmitTest('Time up');
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            document.getElementById('timer').textContent = 
+                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        async function submitTest() {
+            const answered = Object.keys(answers).length;
+            if (answered < questions.length) {
+                if (!confirm(`You have only answered ${answered} out of ${questions.length} questions. Submit anyway?`)) {
+                    return;
+                }
+            }
+
+            if (!confirm('Are you sure you want to submit the test? You cannot change answers after submission.')) {
+                return;
+            }
+
+            await finalizeSubmission('completed');
+        }
+
+        async function autoSubmitTest(reason) {
+            console.log('Auto-submitting test:', reason);
+            
+            // Don't show any alerts, just submit silently
+            await finalizeSubmission('abandoned');
+        }
+
+        async function finalizeSubmission(status) {
+            clearInterval(timerInterval);
+
+            try {
+                const response = await fetch('/api/student/submit-test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        testId: testId,
+                        answers: answers,
+                        timeSpent: testDuration - timeRemaining,
+                        status: status,
+                        violations: warningCount
+                    })
+                });
+
+                if (response.ok) {
+                    console.log('Test submitted successfully');
+                    // For violations, the violation screen is already showing
+                    // For manual submit, redirect normally
+                    if (status !== 'abandoned') {
+                        if (document.fullscreenElement) {
+                            await document.exitFullscreen();
+                        }
+                        window.location.href = '/student_dashboard.html';
+                    }
+                } else {
+                    console.error('Submit failed');
+                }
+            } catch (error) {
+                console.error('Submit error:', error);
+            }
+        }
+
+        // Initialize - load test data and show prep screen
+        window.onload = function() {
+            loadTestData();
+        };
+
+        // Prevent closing/refreshing during test
+        window.addEventListener('beforeunload', (e) => {
+            if (testStarted) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+    </script>
+</body>
+</html>
